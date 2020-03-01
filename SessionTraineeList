@@ -1,0 +1,60 @@
+<h1>Please enter training session date</h1>
+<div>
+	who am i: 
+	<a id="whoAmIButton" href="#">Who am I?</a>
+</div>
+<BR>
+<div>
+	search for date yyyy-mm-dd: <input type="simpletext" id="trainingDate"></input>
+	<a id="listSessionButton" href="#">List training session registrations</a>
+</div>
+
+<script type="text/javascript" src="https://rawgit.com/WildApricot/ApiSamples/master/JavaScript/waPublicApi.js"></script>
+
+<script type="text/javascript">
+	var clientId = "KevTest";
+	var api = new WApublicApi(clientId);
+
+	$(document).ready(function(){
+		$.when(api.init()).done(initButtons);
+	});
+
+
+function initButtons()
+	{
+		$("#whoAmIButton").click(function(){
+			 api.apiRequest({
+				apiUrl: api.apiUrls.me(),
+				success: function (data, textStatus, jqXhr) {
+					 $("#contactIdEntry").val(data.Id);
+				   alert("Hi " + data.FirstName + " " + data.LastName + " !\r\nID is '" + data.Id + "' and email '" + data.Email + "'."); }
+			});
+			return false;
+		});
+
+		$("#listSessionButton").click(function(){
+			var trainingDate = $("#trainingDate").val(); // Convert from a HTML variable to a JS variable - not sure if I need this?
+			console.log(trainingDate);
+			
+			 api.apiRequest({
+				apiUrl: api.apiUrls.events({
+					// $filter: "StartDate eq " + trainingDate // This doesnt seem to be working
+					$filter: "StartDate eq 2020-03-01"
+					}),
+				method: "GET",
+				success: function (data, textStatus, jqXhr) {
+					// https://app.swaggerhub.com/apis-docs/WildApricot/wild-apricot_public_api/7.8.0
+					 for( i=0; i< data.Events.length; i++){
+						var event = data.Events[i];
+						alert(event.Id + " " + event.Name + " " + event.StartDate); 
+					 }
+				},
+				error: function (data, textStatus, jqXhr){
+				   alert("Failed to get a list of events. See console for details " + data.response);
+				}
+			});
+			return false;
+		});
+
+	}
+</script>
